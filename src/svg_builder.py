@@ -69,8 +69,8 @@ def build_svg(calendar_data):
         y = GRID_START_Y + (weekday * (CELL_SIZE + CELL_GAP))
         
         # Month labels
-        if month_name not in months_added and (week_idx - last_month_week > 3) and (max_week - week_idx > 2):
-            # Only add month if it's sufficiently spaced from the last one and not too close to the edge
+        last_added_month_name = months_added[-1] if months_added else ""
+        if month_name != last_added_month_name and (week_idx - last_month_week > 2) and (max_week - week_idx > 1):
             svg_elements.append(f'<text x="{x}" y="{GRID_START_Y - 10}" font-family="sans-serif" font-size="10" fill="{TEXT_MUTED}">{month_name}</text>')
             months_added.append(month_name)
             last_month_week = week_idx

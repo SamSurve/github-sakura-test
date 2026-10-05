@@ -16,11 +16,11 @@ CONTRIBUTION_COLORS = [
 ]
 
 # Grid parameters
-CELL_SIZE = 11
+CELL_SIZE = 14
 CELL_RADIUS = 3
 CELL_GAP = 4
-GRID_START_X = 250 # Push right to make room for tree on left
-GRID_START_Y = 160
+GRID_START_X = 200 # Push right to make room for tree on left
+GRID_START_Y = 140
 
 # Dimensions
 SVG_WIDTH = 1200
