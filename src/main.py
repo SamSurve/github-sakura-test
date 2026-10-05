@@ -2,7 +2,8 @@ import os
 import sys
 import argparse
 from src.github_api import get_contribution_data
-from src.svg_builder import build_svg
+from src.png_renderer import render_png
+from src.theme import CANVAS_WIDTH, CANVAS_HEIGHT
 
 def run_test_data(username):
     print(f"Fetching contribution data for {username}...")
@@ -12,7 +13,7 @@ def run_test_data(username):
         print(f"Error fetching data: {e}")
         sys.exit(1)
         
-    days = data["days"]
+    days = data.get("days", [])
     if not days:
         print("No contribution data found.")
         sys.exit(0)
@@ -22,17 +23,19 @@ def run_test_data(username):
     total_contributions = data["total_contributions"]
     max_daily = max(d["count"] for d in days)
     
-    print("\n--- TEST DATA REPORT ---")
+    print("\n--- CONTRIBUTION DATA REPORT ---")
     print(f"GitHub User: {username}")
     print(f"Date Range: {start_date} to {end_date}")
-    print(f"Contribution Days: {len(days)}")
+    print(f"Total Weeks: {len(data.get('weeks', []))}")
+    print(f"Total Days: {len(days)}")
     print(f"Total Contributions: {total_contributions}")
-    print(f"Maximum Daily Contributions: {max_daily}")
-    print("------------------------\n")
+    print(f"Max Daily Contributions: {max_daily}")
+    print("--------------------------------\n")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Sakura Contributions SVG")
-    parser.add_argument("--test-data", action="store_true", help="Fetch and validate data without generating SVG")
+    parser = argparse.ArgumentParser(description="Generate Sakura Contributions PNG")
+    parser.add_argument("--test-data", action="store_true", help="Fetch and validate data without generating image")
+    parser.add_argument("--output", default=os.path.join("assets", "sakura-contributions.png"), help="Output PNG path")
     args = parser.parse_args()
 
     username = os.environ.get("GITHUB_USERNAME", "SamSurve")
@@ -43,28 +46,18 @@ def main():
 
     print(f"Fetching contribution data for {username}...")
     try:
-        # Note: SVG builder is expecting the old raw data format from github_api.py.
-        # But we were instructed: "Do NOT change the visual artwork yet. Do NOT redesign the SVG yet."
-        # Wait, if we change get_contribution_data to return a normalized dict, 
-        # svg_builder.py will break if we don't adjust it.
-        # The prompt says: "Do NOT change the visual artwork yet. Do NOT redesign the SVG yet."
-        # This means we should only modify what is necessary to pass Phase 2.
-        # ... svg generation logic
         calendar_data = get_contribution_data(username)
     except Exception as e:
         print(f"Error fetching data: {e}")
         sys.exit(1)
         
-    print("Generating Sakura SVG...")
-    svg_content = build_svg(calendar_data)
+    print(f"Generating Sakura Contribution PNG ({CANVAS_WIDTH}x{CANVAS_HEIGHT})...")
+    output_path = render_png(calendar_data, args.output)
     
-    os.makedirs("assets", exist_ok=True)
-    output_path = os.path.join("assets", "sakura-contributions.svg")
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(svg_content)
-        
+    file_size = os.path.getsize(output_path)
     print(f"Successfully generated {output_path}!")
+    print(f"Resolution: {CANVAS_WIDTH} x {CANVAS_HEIGHT}")
+    print(f"File size: {file_size:,} bytes")
 
 if __name__ == "__main__":
     main()
