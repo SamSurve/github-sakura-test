@@ -10,8 +10,8 @@ CANVAS_HEIGHT = 350
 BG_COLOR = "#FCF8FA"         # Clean white with subtle warm pink undertone
 BORDER_COLOR = "#1A1A1A"     # Crisp elegant black border
 INNER_BORDER_COLOR = "#ECDCE4" # Subtle inner border
-TEXT_COLOR = "#222222"       # High-contrast primary dark text
-TEXT_MUTED = "#776677"       # Soft muted plum for labels and dates
+TEXT_COLOR = "#1F1F24"       # High-contrast primary dark text
+TEXT_MUTED = "#766373"       # Soft muted plum for labels and dates
 ACCENT_PINK = "#E84C8F"      # Vibrant Sakura pink accent
 
 # 5 Pink Contribution Levels (Less -> More)
@@ -32,10 +32,10 @@ LEVEL_MAP = {
     "FOURTH_QUARTILE": 4
 }
 
-# Heatmap Grid Layout
-GRID_START_X = 265
-GRID_START_Y = 125
-CELL_SIZE = 13
+# Heatmap Grid Layout - Maximized for visual prominence and alignment
+GRID_START_X = 175
+GRID_START_Y = 82
+CELL_SIZE = 15
 CELL_GAP = 3
 CELL_RADIUS = 3
 

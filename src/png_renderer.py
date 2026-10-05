@@ -11,12 +11,6 @@ from src.theme import (
     CELL_SIZE, CELL_GAP, CELL_RADIUS, DISPLAY_WEEKDAYS
 )
 
-try:
-    from PIL import Image, ImageDraw, ImageFont
-    HAS_PIL = True
-except ImportError:
-    HAS_PIL = False
-
 def hex_to_rgb(hex_code):
     hex_code = hex_code.lstrip("#")
     if len(hex_code) == 3:
@@ -256,7 +250,7 @@ class PureCanvas:
                     self.set_pixel(x, y, r, g, b, a=alpha)
 
     def draw_blossom(self, cx, cy, radius=6):
-        petal_color = "#FFA8C5"
+        petal_color = "#FFA6C4"
         center_color = "#FFFFFF"
         pistil_color = "#C11E66"
         petal_rad = max(2, int(radius * 0.8))
@@ -264,8 +258,8 @@ class PureCanvas:
             angle = i * (2 * math.pi / 5) - math.pi / 2
             px = int(cx + math.cos(angle) * (radius * 0.65))
             py = int(cy + math.sin(angle) * (radius * 0.65))
-            self.draw_circle(px, py, petal_rad, petal_color, alpha=225)
-        self.draw_circle(cx, cy, max(1, int(radius * 0.4)), center_color, alpha=255)
+            self.draw_circle(px, py, petal_rad, petal_color, alpha=230)
+        self.draw_circle(cx, cy, max(1, int(radius * 0.42)), center_color, alpha=255)
         self.draw_circle(cx, cy, max(1, int(radius * 0.2)), pistil_color, alpha=255)
 
     def draw_falling_petal(self, cx, cy, size=4, angle=0.4):
@@ -278,7 +272,7 @@ class PureCanvas:
                 if (dx*2)**2 + dy**2 <= size**2:
                     rx = int(cx + dx * cos_a - dy * sin_a)
                     ry = int(cy + dx * sin_a + dy * cos_a)
-                    self.set_pixel(rx, ry, r, g, b, a=200)
+                    self.set_pixel(rx, ry, r, g, b, a=190)
 
     def draw_text(self, text, x, y, color_hex, scale=1):
         r, g, b = hex_to_rgb(color_hex)
@@ -319,105 +313,150 @@ class PureCanvas:
 
 def draw_background_and_frame(canvas):
     """Layer 1: Canvas background, thick rounded black border, subtle inner border."""
-    # Outer Rounded Frame (3px solid #1A1A1A) with radius 18
-    canvas.fill_rounded_rect(3, 3, CANVAS_WIDTH - 6, CANVAS_HEIGHT - 6, 18, BG_COLOR, border_hex=BORDER_COLOR, border_width=3)
+    # Outer Rounded Frame (3px solid #1A1A1A) with radius 16
+    canvas.fill_rounded_rect(3, 3, CANVAS_WIDTH - 6, CANVAS_HEIGHT - 6, 16, BG_COLOR, border_hex=BORDER_COLOR, border_width=3)
     
     # Inner Decorative Border (1px hairline #ECDCE4)
-    canvas.fill_rounded_rect(10, 10, CANVAS_WIDTH - 20, CANVAS_HEIGHT - 20, 12, BG_COLOR, border_hex=INNER_BORDER_COLOR, border_width=1)
+    canvas.fill_rounded_rect(9, 9, CANVAS_WIDTH - 18, CANVAS_HEIGHT - 18, 11, BG_COLOR, border_hex=INNER_BORDER_COLOR, border_width=1)
 
 def draw_artwork(canvas):
-    """Layer 2: Japanese Sakura Scenery (Sun, Fuji, Pagoda, Water, Tree & Blossoms)."""
-    # 1. Soft Warm Pink Sun/Moon in upper-left
-    canvas.draw_circle(145, 95, 42, "#FCE6EE", border_hex="#FCEFF4", alpha=220)
-    canvas.draw_circle(145, 95, 34, "#FBDCE6", alpha=240)
+    """Layer 2: Japanese Sakura Scenery framing the canvas naturally without competing with the grid."""
+    # 1. Soft Warm Pink Sun/Moon behind mountain in upper-left
+    canvas.draw_circle(105, 75, 36, "#FDE2EC", border_hex="#FCECF2", alpha=210)
+    canvas.draw_circle(105, 75, 28, "#FBD5E3", alpha=230)
 
-    # 2. Distant Mount Fuji / Japanese Alps
-    fuji_points = [(40, 240), (130, 165), (160, 165), (255, 240)]
-    canvas.fill_polygon(fuji_points, "#E4CEE0", alpha=180)
+    # 2. Distant Mount Fuji / Japanese Mountain Ridge (Sweeping majestic silhouette)
+    fuji_points = [(10, 275), (85, 142), (120, 142), (220, 275)]
+    canvas.fill_polygon(fuji_points, "#E4CEE0", alpha=190)
     
-    # Snowcap on summit
-    snow_points = [(120, 178), (130, 165), (160, 165), (170, 178), (155, 174), (145, 178), (135, 173)]
-    canvas.fill_polygon(snow_points, "#FFFFFF", alpha=240)
+    # Snowcap on Mount Fuji
+    snow_points = [(78, 155), (85, 142), (120, 142), (128, 155), (115, 151), (105, 156), (95, 150)]
+    canvas.fill_polygon(snow_points, "#FFFFFF", alpha=245)
 
-    # Secondary mountain ridge
-    ridge_points = [(170, 240), (220, 195), (275, 240)]
-    canvas.fill_polygon(ridge_points, "#DAC2D5", alpha=200)
+    # Secondary softer mountain ridge running into midground
+    ridge_points = [(130, 275), (185, 205), (255, 275)]
+    canvas.fill_polygon(ridge_points, "#D9C1D5", alpha=180)
 
-    # 3. Calm Water & Reflections
-    canvas.fill_rect(12, 240, 250, 95, "#F7E8F1", alpha=200)
-    for ry in [250, 260, 272, 285, 300, 318]:
-        canvas.draw_line(25, ry, 110, ry, "#FFFFFF", width=1, alpha=160)
-        canvas.draw_line(135, ry + 4, 230, ry + 4, "#F4D2E5", width=1, alpha=140)
-
-    # 4. Subtle Pagoda Silhouette
-    pagoda_tier1 = [(200, 235), (202, 215), (228, 215), (230, 235)]
-    canvas.fill_polygon(pagoda_tier1, "#5E4352")
-    roof1 = [(194, 216), (215, 207), (236, 216)]
-    canvas.fill_polygon(roof1, "#4E3643")
-    
-    pagoda_tier2 = [(204, 207), (206, 192), (224, 192), (226, 207)]
-    canvas.fill_polygon(pagoda_tier2, "#5E4352")
-    roof2 = [(198, 193), (215, 185), (232, 193)]
-    canvas.fill_polygon(roof2, "#4E3643")
-    
-    pagoda_tier3 = [(208, 185), (210, 175), (220, 175), (222, 185)]
-    canvas.fill_polygon(pagoda_tier3, "#5E4352")
-    roof3 = [(202, 176), (215, 169), (228, 176)]
-    canvas.fill_polygon(roof3, "#4E3643")
-    
-    # Pagoda spire (sōrin)
-    canvas.draw_line(215, 169, 215, 150, "#3E2B36", width=2)
-    canvas.draw_circle(215, 150, 2, "#C11E66")
-
-    # 5. Hero Sakura Tree Branches (entering from upper-left, staying inside frame)
-    bark = "#321E25"
-    sub_bark = "#492F3B"
-    # Main trunk
-    canvas.draw_line(12, 12, 50, 45, bark, width=8)
-    canvas.draw_line(50, 45, 95, 65, bark, width=6)
-    canvas.draw_line(95, 65, 155, 75, bark, width=5)
-    canvas.draw_line(155, 75, 215, 80, bark, width=4)
-    canvas.draw_line(215, 80, 245, 82, sub_bark, width=2)
-
-    # Sub-branch 1 (upper reach)
-    canvas.draw_line(50, 45, 75, 25, bark, width=4)
-    canvas.draw_line(75, 25, 125, 20, sub_bark, width=3)
-    canvas.draw_line(125, 20, 180, 22, sub_bark, width=2)
-
-    # Sub-branch 2 (lower reach)
-    canvas.draw_line(95, 65, 120, 105, sub_bark, width=4)
-    canvas.draw_line(120, 105, 155, 135, sub_bark, width=2)
-    canvas.draw_line(155, 135, 185, 150, sub_bark, width=1)
-
-    # 6. Dense Realistic Cherry Blossom Clusters
-    blossom_coords = [
-        (35, 38), (55, 28), (75, 20), (100, 18), (125, 16), (150, 18), (175, 22), (200, 28),
-        (65, 52), (85, 60), (110, 68), (135, 72), (160, 75), (185, 78), (210, 80), (235, 82),
-        (105, 90), (120, 105), (135, 120), (155, 135), (175, 145),
-        (28, 55), (45, 75), (70, 95), (90, 115),
-        (140, 50), (165, 55), (190, 60), (215, 65),
-        (22, 22), (32, 15), (50, 12), (80, 42), (115, 45)
+    # 3. Soft Shoreline & Gentle Water Wash (Undulating, organic shoreline)
+    shoreline_points = [
+        (10, 260), (120, 255), (280, 268), (520, 265), (780, 270), 
+        (1020, 265), (1188, 270), (1188, 338), (10, 338)
     ]
-    for bx, by in blossom_coords:
-        canvas.draw_blossom(bx, by, radius=7)
-        canvas.draw_circle(bx - 5, by + 4, 3, "#FFC0D8", alpha=220)
-        canvas.draw_circle(bx + 6, by - 4, 2, "#FFA0C2", alpha=240)
+    canvas.fill_polygon(shoreline_points, "#F7EBF2", alpha=190)
 
-    # 7. Tasteful Falling Petals (Outside the contribution grid!)
+    # Delicate water ripples extending gracefully across
+    for ry in [282, 295, 308, 320, 330]:
+        canvas.draw_line(25, ry, 150, ry, "#FFFFFF", width=1, alpha=160)
+        canvas.draw_line(175, ry + 2, 400, ry + 2, "#F2D5E7", width=1, alpha=120)
+        canvas.draw_line(450, ry, 750, ry, "#FFFFFF", width=1, alpha=110)
+        canvas.draw_line(800, ry + 3, 1150, ry + 3, "#F2D5E7", width=1, alpha=120)
+
+    # 4. Traditional Pagoda Silhouette nestled into shoreline
+    pagoda_tier1 = [(138, 265), (140, 248), (160, 248), (162, 265)]
+    canvas.fill_polygon(pagoda_tier1, "#543A49")
+    roof1 = [(132, 249), (150, 241), (168, 249)]
+    canvas.fill_polygon(roof1, "#442D3B")
+    
+    pagoda_tier2 = [(141, 241), (143, 228), (157, 228), (159, 241)]
+    canvas.fill_polygon(pagoda_tier2, "#543A49")
+    roof2 = [(136, 229), (150, 222), (164, 229)]
+    canvas.fill_polygon(roof2, "#442D3B")
+    
+    pagoda_tier3 = [(144, 222), (146, 212), (154, 212), (156, 222)]
+    canvas.fill_polygon(pagoda_tier3, "#543A49")
+    roof3 = [(139, 213), (150, 207), (161, 213)]
+    canvas.fill_polygon(roof3, "#442D3B")
+    
+    # Pagoda finial spire (sōrin)
+    canvas.draw_line(150, 207, 150, 190, "#36222E", width=2)
+    canvas.draw_circle(150, 190, 2, "#C11E66")
+
+    # 5. Hero Sakura Tree Branches (Upper-left, framing top-left)
+    bark = "#2D1822"
+    sub_bark = "#462B37"
+    # Main upper-left trunk
+    canvas.draw_line(10, 10, 42, 38, bark, width=8)
+    canvas.draw_line(42, 38, 85, 50, bark, width=6)
+    canvas.draw_line(85, 50, 130, 54, bark, width=5)
+    canvas.draw_line(130, 54, 168, 52, sub_bark, width=3)
+
+    # Sub-branch upper
+    canvas.draw_line(42, 38, 68, 18, bark, width=4)
+    canvas.draw_line(68, 18, 110, 14, sub_bark, width=2)
+
+    # Sub-branch lower reaching toward pagoda
+    canvas.draw_line(85, 50, 102, 80, sub_bark, width=3)
+    canvas.draw_line(102, 80, 122, 108, sub_bark, width=2)
+
+    # 6. Upper-Left Blossom Clusters
+    blossoms_left = [
+        (28, 30), (46, 22), (66, 16), (88, 14), (112, 14), (135, 16),
+        (52, 42), (72, 48), (94, 52), (116, 53), (140, 53), (162, 51),
+        (88, 70), (102, 85), (115, 100), (128, 114),
+        (20, 16), (36, 10), (14, 36), (32, 52), (56, 65)
+    ]
+    for bx, by in blossoms_left:
+        canvas.draw_blossom(bx, by, radius=7)
+        canvas.draw_circle(bx - 4, by + 3, 2, "#FFC0D8", alpha=220)
+        canvas.draw_circle(bx + 5, by - 3, 2, "#FFA0C2", alpha=240)
+
+    # 7. Right-Side Framing Sprig (Eliminates the empty white space on right!)
+    canvas.draw_line(1188, 12, 1155, 32, bark, width=4)
+    canvas.draw_line(1155, 32, 1120, 42, sub_bark, width=3)
+    canvas.draw_line(1155, 32, 1140, 58, sub_bark, width=2)
+    blossoms_right = [
+        (1175, 18), (1155, 26), (1135, 36), (1118, 42), (1138, 55), (1155, 62), (1178, 40)
+    ]
+    for bx, by in blossoms_right:
+        canvas.draw_blossom(bx, by, radius=6)
+        canvas.draw_circle(bx - 3, by + 3, 2, "#FFC0D8", alpha=220)
+
+    # 8. Subtle Japanese Stone Lantern (tōrō) silhouette on lower right
+    lx = 1150
+    ly = 275
+    canvas.fill_polygon([(lx-4, ly+20), (lx+4, ly+20), (lx+3, ly+8), (lx-3, ly+8)], "#5A4250", alpha=180) # Base & shaft
+    canvas.fill_polygon([(lx-6, ly+8), (lx+6, ly+8), (lx+5, ly+2), (lx-5, ly+2)], "#4D3643", alpha=200)   # Light chamber
+    canvas.fill_polygon([(lx-8, ly+2), (lx+8, ly+2), (lx, ly-4)], "#3E2B36", alpha=220)                   # Roof cap
+    canvas.draw_circle(lx, ly-4, 2, "#C11E66", alpha=220)                                                 # Jewel finial
+
+    # 9. Delicate Falling Petals (Scattered tastefully, never covering cells)
     petals = [
-        (45, 160, 4, 0.3), (70, 190, 5, 0.7), (95, 225, 4, 0.2),
-        (130, 260, 5, 0.9), (160, 290, 4, 0.4), (200, 310, 5, 0.8),
-        (240, 320, 4, 0.5), (280, 315, 4, 0.6), (330, 325, 5, 0.3),
-        (235, 105, 3, 0.5), (245, 130, 4, 0.8)
+        (35, 135, 4, 0.3), (52, 180, 4, 0.7), (75, 215, 5, 0.2),
+        (98, 250, 4, 0.9), (128, 285, 4, 0.4), (200, 300, 5, 0.8),
+        (330, 310, 4, 0.5), (520, 315, 4, 0.6), (720, 310, 5, 0.3),
+        (880, 305, 4, 0.5), (1020, 300, 4, 0.8), (1145, 105, 3, 0.4),
+        (1130, 140, 4, 0.7)
     ]
     for px, py, psize, pang in petals:
         canvas.draw_falling_petal(px, py, size=psize, angle=pang)
 
+def draw_header_bar(canvas, username, total_contributions):
+    """Layer 3: Minimal, clean, editorial Japanese header bar (perfectly aligned with grid)."""
+    # Left: User branding
+    canvas.draw_circle(GRID_START_X + 6, 38, 8, "#FDE8F1", border_hex=ACCENT_PINK)
+    canvas.draw_text("S", GRID_START_X + 4, 34, ACCENT_PINK, scale=1)
+    
+    header_user = f"{username}"
+    canvas.draw_text(header_user, GRID_START_X + 20, 34, TEXT_COLOR, scale=1)
+    
+    user_end_x = GRID_START_X + 20 + len(header_user) * 7
+    canvas.draw_text("•", user_end_x + 8, 34, TEXT_MUTED, scale=1)
+    
+    stats_text = f"{total_contributions} contributions in the last year  •  Daily Live Sync"
+    canvas.draw_text(stats_text, user_end_x + 22, 34, TEXT_MUTED, scale=1)
+
+    # Right: Compact Live status indicator (Aligned with right grid edge: 1126 - 75 = 1051)
+    badge_x = 1051
+    badge_y = 28
+    canvas.fill_rounded_rect(badge_x, badge_y, 75, 20, 5, "#FAF0F5", border_hex="#F0D0E0", border_width=1)
+    canvas.draw_circle(badge_x + 10, badge_y + 10, 3, "#2EB872")
+    canvas.draw_text("SYNCED", badge_x + 19, badge_y + 6, TEXT_MUTED, scale=1)
+
 def draw_contribution_grid(canvas, calendar_data):
-    """Layer 3: Renders the 52/53 weeks × 7 days heatmap grid with real counts and colors."""
+    """Layer 4: HERO Heatmap Grid (Visually dominant, aligned, readable)."""
     weeks = calendar_data.get("weeks", [])
 
-    # Calculate month labels dynamically based on real contribution dates
+    # Calculate month positions dynamically based on real contribution dates
     month_positions = []
     last_month = None
     for w_idx, week in enumerate(weeks):
@@ -432,16 +471,16 @@ def draw_contribution_grid(canvas, calendar_data):
                     month_positions.append((col_x, m_str))
                 break
 
-    # Draw month labels
+    # Draw month labels directly above the grid (centered over column)
     for mx, mname in month_positions:
-        canvas.draw_text(mname, mx, GRID_START_Y - 18, TEXT_MUTED, scale=1)
+        canvas.draw_text(mname, mx - 2, GRID_START_Y - 17, TEXT_MUTED, scale=1)
 
-    # Draw weekday labels on the left of grid
+    # Draw weekday labels on the left of grid (vertically centered on rows)
     for row_idx, label in DISPLAY_WEEKDAYS.items():
         wy = GRID_START_Y + row_idx * (CELL_SIZE + CELL_GAP) + 3
-        canvas.draw_text(label, GRID_START_X - 28, wy, TEXT_MUTED, scale=1)
+        canvas.draw_text(label, GRID_START_X - 30, wy, TEXT_MUTED, scale=1)
 
-    # Render all contribution cells
+    # Render all contribution cells with real counts and 5-tier pink levels
     for w_idx, week in enumerate(weeks):
         col_x = GRID_START_X + w_idx * (CELL_SIZE + CELL_GAP)
         for day in week.get("contributionDays", []):
@@ -456,50 +495,33 @@ def draw_contribution_grid(canvas, calendar_data):
             lvl = min(4, max(0, lvl))
             
             cell_color = CONTRIBUTION_COLORS[lvl]
-            border_c = "#F0E2E8" if lvl == 0 else None
+            border_c = "#EFE0E6" if lvl == 0 else None
             
             canvas.fill_rounded_rect(
                 col_x, row_y, CELL_SIZE, CELL_SIZE, CELL_RADIUS,
                 cell_color, border_hex=border_c, border_width=1
             )
 
-    # Draw Legend at bottom right
-    legend_y = GRID_START_Y + 7 * (CELL_SIZE + CELL_GAP) + 16
-    legend_x = 940
+    # Draw Legend directly below the grid (right-aligned with grid end at X=1126)
+    grid_bottom_y = GRID_START_Y + 7 * (CELL_SIZE + CELL_GAP)
+    legend_y = grid_bottom_y + 12
+    legend_x = 984
     canvas.draw_text("Less", legend_x, legend_y + 3, TEXT_MUTED, scale=1)
     
     start_box_x = legend_x + 35
+    box_size = 12
     for i in range(5):
-        bx = start_box_x + i * (CELL_SIZE + 3)
+        bx = start_box_x + i * (box_size + 3)
         bcolor = CONTRIBUTION_COLORS[i]
-        b_border = "#F0E2E8" if i == 0 else None
-        canvas.fill_rounded_rect(bx, legend_y, CELL_SIZE, CELL_SIZE, CELL_RADIUS, bcolor, border_hex=b_border, border_width=1)
+        b_border = "#EFE0E6" if i == 0 else None
+        canvas.fill_rounded_rect(bx, legend_y + 1, box_size, box_size, 2, bcolor, border_hex=b_border, border_width=1)
         
-    canvas.draw_text("More", start_box_x + 5 * (CELL_SIZE + 3) + 8, legend_y + 3, TEXT_MUTED, scale=1)
-
-def draw_header_text(canvas, username, total_contributions):
-    """Layer 4: Title, stats, and live status badge on top."""
-    # Top Brand / Title
-    canvas.draw_circle(GRID_START_X + 12, 50, 12, "#FDE8F1", border_hex=ACCENT_PINK)
-    canvas.draw_text("S", GRID_START_X + 9, 46, ACCENT_PINK, scale=1)
-
-    title_text = f"{username} / SAKURA CONTRIBUTION GARDEN"
-    canvas.draw_text(title_text, GRID_START_X + 32, 44, TEXT_COLOR, scale=2)
-
-    subtitle_text = f"{total_contributions} contributions in the last year  -  Daily Live Sync"
-    canvas.draw_text(subtitle_text, GRID_START_X + 32, 70, TEXT_MUTED, scale=1)
-
-    # Active status badge on upper-right
-    badge_x = 1005
-    badge_y = 44
-    canvas.fill_rounded_rect(badge_x, badge_y, 85, 24, 6, "#FAF0F5", border_hex="#F0D0E0", border_width=1)
-    canvas.draw_circle(badge_x + 14, badge_y + 12, 4, "#2EB872")
-    canvas.draw_text("SYNCED", badge_x + 24, badge_y + 8, TEXT_MUTED, scale=1)
+    canvas.draw_text("More", start_box_x + 5 * (box_size + 3) + 8, legend_y + 3, TEXT_MUTED, scale=1)
 
 def render_png(calendar_data, output_path):
     """
-    Renders high-quality PNG visualization for GitHub profile.
-    Properly layered: Frame -> Artwork -> Heatmap Grid -> Header Text.
+    Renders the redesigned premium Sakura contribution banner PNG.
+    Grid is the prominent hero, beautifully framed by Japanese landscape & flora.
     """
     username = calendar_data.get("username", "SamSurve")
     total_contributions = calendar_data.get("total_contributions", 0)
@@ -510,14 +532,14 @@ def render_png(calendar_data, output_path):
     # Layer 1: Frame and Canvas Background
     draw_background_and_frame(canvas)
 
-    # Layer 2: Japanese Sakura Artwork (Upper-left & background)
+    # Layer 2: Japanese Sakura Landscape Artwork (Background & Framing)
     draw_artwork(canvas)
 
-    # Layer 3: Contribution Heatmap Grid (Hero central/right)
-    draw_contribution_grid(canvas, calendar_data)
+    # Layer 3: Minimal, clean, non-intrusive header bar
+    draw_header_bar(canvas, username, total_contributions)
 
-    # Layer 4: Framing chrome, title, and live stats
-    draw_header_text(canvas, username, total_contributions)
+    # Layer 4: Contribution Heatmap Grid (THE HERO - visually dominant)
+    draw_contribution_grid(canvas, calendar_data)
 
     # Encode and write PNG
     png_data = canvas.to_png_bytes()
